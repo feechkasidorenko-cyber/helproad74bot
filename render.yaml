@@ -4,3 +4,4 @@ services:
     env: python
     buildCommand: "pip install -r requirements.txt"
     startCommand: "python dtp_bot_v3.py"
+    pythonVersion: 3.11.9
