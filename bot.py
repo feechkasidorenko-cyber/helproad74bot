@@ -801,49 +801,23 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
 # ==================== MAIN ====================
 
 
-async def main() -> None:
-    if not TELEGRAM_TOKEN:
-        logger.error("❌ TELEGRAM_TOKEN не задан в переменных окружения")
-        return
-
-    application: Application = Application.builder().token(TELEGRAM_TOKEN).build()
+async def main():
+    application = Application.builder().token(TELEGRAM_TOKEN).build()
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
         states={
-            CHOOSING_MODE: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, choose_mode),
-            ],
-            LOCATION: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, get_location),
-            ],
-            PARTICIPANTS: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, get_participants),
-            ],
-            DAMAGE: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, get_damage),
-            ],
-            INJURIES: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, get_injuries),
-            ],
-            CONTACT: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, get_contact),
-            ],
-            AI_CHAT: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, ai_chat),
-            ],
-            CONFIRM: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, confirm_application),
-            ],
-            ADMIN_MENU: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, admin_menu_handler),
-            ],
-            ADMIN_ADD: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, admin_add_handler),
-            ],
-            ADMIN_REMOVE: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, admin_remove_handler),
-            ],
+            CHOOSING_MODE: [MessageHandler(filters.TEXT & ~filters.COMMAND, choose_mode)],
+            LOCATION: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_location)],
+            PARTICIPANTS: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_participants)],
+            DAMAGE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_damage)],
+            INJURIES: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_injuries)],
+            CONTACT: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_contact)],
+            AI_CHAT: [MessageHandler(filters.TEXT & ~filters.COMMAND, ai_chat)],
+            CONFIRM: [MessageHandler(filters.TEXT & ~filters.COMMAND, confirm_application)],
+            ADMIN_MENU: [MessageHandler(filters.TEXT & ~filters.COMMAND, admin_menu_handler)],
+            ADMIN_ADD: [MessageHandler(filters.TEXT & ~filters.COMMAND, admin_add_handler)],
+            ADMIN_REMOVE: [MessageHandler(filters.TEXT & ~filters.COMMAND, admin_remove_handler)],
         },
         fallbacks=[CommandHandler("cancel", cancel)],
     )
@@ -857,5 +831,4 @@ async def main() -> None:
 
 if __name__ == "__main__":
     import asyncio
-
     asyncio.run(main())
