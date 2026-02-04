@@ -4,7 +4,7 @@
 Телеграм-бот для обработки заявок по ДТП с AI-агентом
 Версия 3.0 - с отправкой заявок администратору
 """
-
+import os
 import logging
 from datetime import datetime
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
