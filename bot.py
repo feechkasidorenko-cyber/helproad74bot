@@ -799,36 +799,59 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
 
 
 # ==================== MAIN ====================
+# ==================== MAIN ====================
 
+def main() -> None:
+    """Запуск бота"""
+    # Проверка токена
+    if not TELEGRAM_TOKEN:
+        logger.error("❌ TELEGRAM_TOKEN не установлен! Проверьте переменные окружения.")
+        return
+    
+    logger.info(f"✅ Токен бота: {'установлен' if TELEGRAM_TOKEN else 'отсутствует'}")
+    logger.info(f"✅ OpenAI: {'доступен' if openai_client else 'недоступен'}")
+    
+    try:
+        # Используем ApplicationBuilder вместо Application.builder()
+        from telegram.ext import ApplicationBuilder
+        
+        # Создаем Application через Builder
+        application = (
+            ApplicationBuilder()
+            .token(TELEGRAM_TOKEN)
+            .build()
+        )
+        
+        # Обработчик диалога
+        conv_handler = ConversationHandler(
+            entry_points=[CommandHandler("start", start)],
+            states={
+                CHOOSING_MODE: [MessageHandler(filters.TEXT & ~filters.COMMAND, choose_mode)],
+                LOCATION: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_location)],
+                PARTICIPANTS: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_participants)],
+                DAMAGE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_damage)],
+                INJURIES: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_injuries)],
+                CONTACT: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_contact)],
+                AI_CHAT: [MessageHandler(filters.TEXT & ~filters.COMMAND, ai_chat)],
+                CONFIRM: [MessageHandler(filters.TEXT & ~filters.COMMAND, confirm_application)],
+                ADMIN_MENU: [MessageHandler(filters.TEXT & ~filters.COMMAND, admin_menu_handler)],
+                ADMIN_ADD: [MessageHandler(filters.TEXT & ~filters.COMMAND, admin_add_handler)],
+                ADMIN_REMOVE: [MessageHandler(filters.TEXT & ~filters.COMMAND, admin_remove_handler)],
+            },
+            fallbacks=[CommandHandler("cancel", cancel)],
+        )
 
-async def main():
-    application = Application.builder().token(TELEGRAM_TOKEN).build()
+        application.add_handler(conv_handler)
+        application.add_error_handler(error_handler)
 
-    conv_handler = ConversationHandler(
-        entry_points=[CommandHandler("start", start)],
-        states={
-            CHOOSING_MODE: [MessageHandler(filters.TEXT & ~filters.COMMAND, choose_mode)],
-            LOCATION: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_location)],
-            PARTICIPANTS: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_participants)],
-            DAMAGE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_damage)],
-            INJURIES: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_injuries)],
-            CONTACT: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_contact)],
-            AI_CHAT: [MessageHandler(filters.TEXT & ~filters.COMMAND, ai_chat)],
-            CONFIRM: [MessageHandler(filters.TEXT & ~filters.COMMAND, confirm_application)],
-            ADMIN_MENU: [MessageHandler(filters.TEXT & ~filters.COMMAND, admin_menu_handler)],
-            ADMIN_ADD: [MessageHandler(filters.TEXT & ~filters.COMMAND, admin_add_handler)],
-            ADMIN_REMOVE: [MessageHandler(filters.TEXT & ~filters.COMMAND, admin_remove_handler)],
-        },
-        fallbacks=[CommandHandler("cancel", cancel)],
-    )
-
-    application.add_handler(conv_handler)
-    application.add_error_handler(error_handler)
-
-    logger.info("🚀 Бот запущен. Ожидаю сообщения...")
-    await application.run_polling()
+        # Запуск бота
+        logger.info("🚀 Бот запущен. Ожидаю сообщения...")
+        application.run_polling()
+        
+    except Exception as e:
+        logger.error(f"❌ Критическая ошибка при запуске: {e}")
+        raise
 
 
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
+    main()
